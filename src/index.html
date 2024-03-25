@@ -8,15 +8,30 @@
     <link href="./output.css" rel="stylesheet">
     <link rel="images" href="img">
 </head>
-<body class="bg-gray-100 dark:bg-gray-700">
-    <div id="modeSelector" class="max-w-[40px] bg-zinc-200 dark:bg-slate-600 rounded-3xl">
-        <img src="../img/sun.svg" alt="sun icon" id="sun" class="hidden"/>
-        <img src="../img/moon.svg" alt="moon icon" id="moon"/>
-    </div>
-    <div>
-        <p>Convert to:</p>
-    </div>
-    <textarea class="bg-zinc-50 dark:bg-slate-800 rounded-xl border-solid border-4 border-zinc-200 dark:border-slate-600 min-w-[300px]"></textarea>
+<body class="bg-gray-100 dark:bg-gray-700 p-2.5">
+    <main>
+        <div id="modeSelector" class="max-w-[40px] bg-zinc-200 dark:bg-slate-600 rounded-3xl">
+            <img src="../img/sun.svg" alt="sun icon" id="sun" class="hidden"/>
+            <img src="../img/moon.svg" alt="moon icon" id="moon"/>
+        </div>
+        <div id="step1">
+            <h1 class=" text-center
+                mb-2 mt-7
+            ">1. Enter the instructions you want to convert.</h1>
+            <textarea class="bg-zinc-50 dark:bg-slate-800 
+                rounded-xl 
+                border-solid border-4 border-zinc-200 dark:border-slate-600 
+                w-full md:w-4/5 lg:3/5 xl:1/2
+                min-h-72
+                block
+                mx-auto my-2
+            ">
+            </textarea>
+            <button>
+                next
+            </button>
+        </div>
+    </main>
 
 <script src="main.js"></script>
 </body>
