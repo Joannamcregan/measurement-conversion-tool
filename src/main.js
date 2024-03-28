@@ -29,29 +29,45 @@ function convert() {
 }
 
 function setSelection() {
-    let selectedText = '';
+    var selection;
+    var selectedText;
+    var selectionStartNode;
+    var selectionEndNode;
+    var selectionStartIndex;
+    var selectionEndIndex;
     if (window.getSelection) {
-        selectedText = window.getSelection().toString();
+        selection = window.getSelection();
     } else if (document.getSelection) {
-        selectedText = document.getSelection().toString();
-    } else if (document.selection) {
-        selectedText = document.selection.createRange().text;
+        selection = document.getSelection().toString();
     }
+    selectedText = selection.toString();
+    selectionStartNode = selection.anchorNode;
+    selectionEndNode = selection.focusNode;
+    selectionStartIndex = selection.anchorOffset;
+    selectionEndIndex = selection.focusOffset;
+    console.log('start node: ' + selectionStartNode.wholeText + 'start index: ' + selectionStartIndex + ' end node: ' + selectionEndNode.wholeText + ' end index: ' + selectionEndIndex);
     if (/m/.test(selectedText) || /meter/.test(selectedText)
         || /cm/.test(selectedText) || /centimeter/.test(selectedText) 
         || /mm/.test(selectedText) || /millimeter/.test(selectedText)){
         wrongUnit.classList.add("hidden");
+        let numberPart = selectedText.replace(/[^0123456789.]/gi, '');
         if (/\d/.test(selectedText)){
             noNumber.classList.add('hidden');
             if (selectedText.includes('/')){
                 containsFraction.classList.remove('hidden');
-            } else {
+            }else {
                 containsFraction.classList.add('hidden');
-                if (/cm/.test(selectedText) || /centimeter/.test(selectedText) 
+                if (
+                    ((/m/.test(selectedText) || /meter/.test(selectedText)) && numberPart > 0 && numberPart < 1) ||
+                    ((/cm/.test(selectedText) || /centimeter/.test(selectedText)) && numberPart >= 30.48)){
+                    suggestFeet();
+                    console.log('feet');
+                } else if (/cm/.test(selectedText) || /centimeter/.test(selectedText) 
                 || /mm/.test(selectedText) || /millimeter/.test(selectedText)){
                     suggestInches();
+                    console.log('inches');
                 } else {
-                    console.log('suggest yards');
+                    suggestYards();
                 }
             }
         } else {
@@ -69,6 +85,33 @@ function suggestInches(){
     inches.classList.add('bg-opacity-75');
     feet.classList.add('bg-opacity-25');
     yards.classList.add('bg-opacity-25');
+    inches.setAttribute('aria-description', 'suggested unit option');
+    feet.setAttribute('aria-description', 'unit option');
+    yards.setAttribute('aria-description', 'unit option');
+}
+
+function suggestFeet(){
+    feet.classList.remove('bg-opacity-25');
+    inches.classList.remove('bg-opacity-75');
+    yards.classList.remove('bg-opacity-75');
+    feet.classList.add('bg-opacity-75');
+    inches.classList.add('bg-opacity-25');
+    yards.classList.add('bg-opacity-25');
+    feet.setAttribute('aria-description', 'suggested unit option');
+    inches.setAttribute('aria-description', 'unit option');
+    yards.setAttribute('aria-description', 'unit option');
+}
+
+function suggestYards(){
+    yards.classList.remove('bg-opacity-25');
+    feet.classList.remove('bg-opacity-75');
+    inches.classList.remove('bg-opacity-75');
+    yards.classList.add('bg-opacity-75');
+    feet.classList.add('bg-opacity-25');
+    inches.classList.add('bg-opacity-25');
+    yards.setAttribute('aria-description', 'suggested unit option');
+    feet.setAttribute('aria-description', 'unit option');
+    inches.setAttribute('aria-description', 'unit option');
 }
 
 function getNext(){
