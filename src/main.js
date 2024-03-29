@@ -181,7 +181,7 @@ function suggestYards(){
 function getNext(){
     if (input.value.trim()){
         noText.classList.add("hidden");
-        output.innerText = 'Instructions: ' + input.value.trim();
+        output.innerText = 'Instructions: ' + input.value.trim() + '_';
         step1.classList.add("hidden");
         step2.classList.remove("hidden");
     } else {
