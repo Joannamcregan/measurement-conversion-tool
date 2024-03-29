@@ -18,56 +18,104 @@ const yards = document.querySelector("#yards");
 
 let isDark = false;
 
+var numberPart;
+var unitPart;
+
+var selection;
+var selectedText;
+// var selectionStartNode;
+// var selectionEndNode;
+var selectionStartIndex;
+var selectionLength;
+// var selectionEndIndex;
+
 modeSelector.addEventListener('click', toggleDark.bind(this));
 next.addEventListener('click', getNext.bind(this));
 restart.addEventListener('click', startOver.bind(this));
 output.addEventListener('mouseup', setSelection.bind(this));
-inches.addEventListener('click', convert.bind(this));
+inches.addEventListener('click', convert.bind(this, 'inches'));
+feet.addEventListener('click', convert.bind(this, 'feet'));
+yards.addEventListener('click', convert.bind(this, 'yards'));
 
-function convert() {
-    console.log('called');
+function convert(convertTo) {
+    var newNumber;
+    if (unitPart === 'm'){
+        if (convertTo === 'inches'){
+            newNumber = numberPart * 39.3701;
+        } else if (convertTo === 'feet'){
+            newNumber = numberPart * 3.28084;
+        } else if (convertTo === 'yards'){
+            newNumber = numberPart * 1.09361;
+        }
+    } else if (unitPart === 'cm'){
+        if (convertTo === 'inches'){
+            newNumber = numberPart * 0.393701;
+        } else if (convertTo === 'feet'){
+            newNumber = numberPart * 0.0328084;
+        } else if (convertTo === 'yards'){
+            newNumber = numberPart * 0.0109361;
+        }
+    } else if (unitPart === 'mm'){
+        if (convertTo === 'inches'){
+            newNumber = numberPart * 0.0393701;
+        } else if (convertTo === 'feet'){
+            newNumber = numberPart * 0.00328084;
+        } else if (convertTo === 'yards'){
+            newNumber = numberPart * 0.00109361;
+        }
+    }
+    if (newNumber === 1){
+        if (convertTo === 'inches'){
+            replaceMeasurement(newNumber, 'inch');
+        } else if (convertTo === 'feet'){
+            replaceMeasurement(newNumber, 'foot');
+        } else if (convertTo === 'yards'){
+            replaceMeasurement(newNumber, 'yard');
+        }
+    } else {
+        replaceMeasurement(newNumber, convertTo);
+    }
+    clearSuggestion();
 }
 
 function setSelection() {
-    var selection;
-    var selectedText;
-    var selectionStartNode;
-    var selectionEndNode;
-    var selectionStartIndex;
-    var selectionEndIndex;
     if (window.getSelection) {
         selection = window.getSelection();
     } else if (document.getSelection) {
         selection = document.getSelection().toString();
     }
     selectedText = selection.toString();
-    selectionStartNode = selection.anchorNode;
-    selectionEndNode = selection.focusNode;
+    selectionLength = selectedText.length;
+    // selectionStartNode = selection.anchorNode;
+    // selectionEndNode = selection.focusNode;
     selectionStartIndex = selection.anchorOffset;
-    selectionEndIndex = selection.focusOffset;
-    console.log('start node: ' + selectionStartNode.wholeText + 'start index: ' + selectionStartIndex + ' end node: ' + selectionEndNode.wholeText + ' end index: ' + selectionEndIndex);
+    // selectionEndIndex = selection.focusOffset;
     if (/m/.test(selectedText) || /meter/.test(selectedText)
         || /cm/.test(selectedText) || /centimeter/.test(selectedText) 
         || /mm/.test(selectedText) || /millimeter/.test(selectedText)){
         wrongUnit.classList.add("hidden");
-        let numberPart = selectedText.replace(/[^0123456789.]/gi, '');
+        numberPart = selectedText.replace(/[^0123456789.]/gi, '');
         if (/\d/.test(selectedText)){
             noNumber.classList.add('hidden');
             if (selectedText.includes('/')){
                 containsFraction.classList.remove('hidden');
             }else {
                 containsFraction.classList.add('hidden');
-                if (
-                    ((/m/.test(selectedText) || /meter/.test(selectedText)) && numberPart > 0 && numberPart < 1) ||
-                    ((/cm/.test(selectedText) || /centimeter/.test(selectedText)) && numberPart >= 30.48)){
+                if ((/cm/.test(selectedText) || /centimeter/.test(selectedText)) && numberPart >= 30.48){
                     suggestFeet();
-                    console.log('feet');
-                } else if (/cm/.test(selectedText) || /centimeter/.test(selectedText) 
-                || /mm/.test(selectedText) || /millimeter/.test(selectedText)){
+                    unitPart = 'cm';
+                } else if (/cm/.test(selectedText) || /centimeter/.test(selectedText)){
                     suggestInches();
-                    console.log('inches');
-                } else {
+                    unitPart = 'cm';
+                } else if (/mm/.test(selectedText) || /millimeter/.test(selectedText)){
+                    suggestInches();
+                    unitPart = 'mm';
+                } else if ((/m/.test(selectedText) || /meter/.test(selectedText)) && numberPart > 0 && numberPart < 1){
+                    suggestFeet();
+                    unitPart = 'm'
+                }else if (/m/.test(selectedText) || /meter/.test(selectedText)){
                     suggestYards();
+                    unitPart = 'm';
                 }
             }
         } else {
@@ -76,6 +124,21 @@ function setSelection() {
     } else {
         wrongUnit.classList.remove("hidden");
     }
+}
+
+function replaceMeasurement(newValue, newUnit){
+    let arr = input.value.trim().split('');
+    arr.splice(selectionStartIndex, selectionLength, newValue + ' ' + newUnit);
+    output.innerText = arr.join('');
+}
+
+function clearSuggestion(){
+    inches.classList.remove('bg-opacity-75');
+    feet.classList.remove('bg-opacity-75');
+    yards.classList.remove('bg-opacity-75');
+    inches.classList.add('bg-opacity-25');
+    feet.classList.add('bg-opacity-25');
+    yards.classList.add('bg-opacity-25');
 }
 
 function suggestInches(){
@@ -117,7 +180,7 @@ function suggestYards(){
 function getNext(){
     if (input.value.trim()){
         noText.classList.add("hidden");
-        output.innerText = input.value;
+        output.innerText = input.value.trim();
         step1.classList.add("hidden");
         step2.classList.remove("hidden");
     } else {
