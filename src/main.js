@@ -30,6 +30,7 @@ modeSelector.addEventListener('click', toggleDark.bind(this));
 next.addEventListener('click', getNext.bind(this));
 restart.addEventListener('click', startOver.bind(this));
 output.addEventListener('mouseup', setSelection.bind(this));
+document.addEventListener('selectionchange', setSelection.bind(this));
 inches.addEventListener('click', convert.bind(this, 'inches'));
 feet.addEventListener('click', convert.bind(this, 'feet'));
 yards.addEventListener('click', convert.bind(this, 'yards'));
