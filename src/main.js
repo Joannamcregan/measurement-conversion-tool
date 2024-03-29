@@ -23,11 +23,8 @@ var unitPart;
 
 var selection;
 var selectedText;
-// var selectionStartNode;
-// var selectionEndNode;
 var selectionStartIndex;
 var selectionLength;
-// var selectionEndIndex;
 
 modeSelector.addEventListener('click', toggleDark.bind(this));
 next.addEventListener('click', getNext.bind(this));
@@ -39,57 +36,60 @@ yards.addEventListener('click', convert.bind(this, 'yards'));
 
 function convert(convertTo) {
     var newNumber;
-    if (unitPart === 'm'){
-        if (convertTo === 'inches'){
-            newNumber = numberPart * 39.3701;
-        } else if (convertTo === 'feet'){
-            newNumber = numberPart * 3.28084;
-        } else if (convertTo === 'yards'){
-            newNumber = numberPart * 1.09361;
+    if (/m/.test(selectedText) || /meter/.test(selectedText)
+    || /cm/.test(selectedText) || /centimeter/.test(selectedText) 
+    || /mm/.test(selectedText) || /millimeter/.test(selectedText)){
+        if (unitPart === 'm'){
+            if (convertTo === 'inches'){
+                newNumber = numberPart * 39.3701;
+            } else if (convertTo === 'feet'){
+                newNumber = numberPart * 3.28084;
+            } else if (convertTo === 'yards'){
+                newNumber = numberPart * 1.09361;
+            }
+        } else if (unitPart === 'cm'){
+            if (convertTo === 'inches'){
+                newNumber = numberPart * 0.393701;
+            } else if (convertTo === 'feet'){
+                newNumber = numberPart * 0.0328084;
+            } else if (convertTo === 'yards'){
+                newNumber = numberPart * 0.0109361;
+            }
+        } else if (unitPart === 'mm'){
+            if (convertTo === 'inches'){
+                newNumber = numberPart * 0.0393701;
+            } else if (convertTo === 'feet'){
+                newNumber = numberPart * 0.00328084;
+            } else if (convertTo === 'yards'){
+                newNumber = numberPart * 0.00109361;
+            }
         }
-    } else if (unitPart === 'cm'){
-        if (convertTo === 'inches'){
-            newNumber = numberPart * 0.393701;
-        } else if (convertTo === 'feet'){
-            newNumber = numberPart * 0.0328084;
-        } else if (convertTo === 'yards'){
-            newNumber = numberPart * 0.0109361;
+        if (newNumber === 1){
+            if (convertTo === 'inches'){
+                replaceMeasurement(newNumber, 'inch');
+            } else if (convertTo === 'feet'){
+                replaceMeasurement(newNumber, 'foot');
+            } else if (convertTo === 'yards'){
+                replaceMeasurement(newNumber, 'yard');
+            }
+        } else {
+            replaceMeasurement(newNumber, convertTo);
         }
-    } else if (unitPart === 'mm'){
-        if (convertTo === 'inches'){
-            newNumber = numberPart * 0.0393701;
-        } else if (convertTo === 'feet'){
-            newNumber = numberPart * 0.00328084;
-        } else if (convertTo === 'yards'){
-            newNumber = numberPart * 0.00109361;
-        }
+        clearSuggestion();
     }
-    if (newNumber === 1){
-        if (convertTo === 'inches'){
-            replaceMeasurement(newNumber, 'inch');
-        } else if (convertTo === 'feet'){
-            replaceMeasurement(newNumber, 'foot');
-        } else if (convertTo === 'yards'){
-            replaceMeasurement(newNumber, 'yard');
-        }
-    } else {
-        replaceMeasurement(newNumber, convertTo);
-    }
-    clearSuggestion();
 }
 
 function setSelection() {
+    console.log('called');
     if (window.getSelection) {
         selection = window.getSelection();
     } else if (document.getSelection) {
-        selection = document.getSelection().toString();
+        selection = document.getSelection().toString().trim();
     }
     selectedText = selection.toString();
     selectionLength = selectedText.length;
-    // selectionStartNode = selection.anchorNode;
-    // selectionEndNode = selection.focusNode;
     selectionStartIndex = selection.anchorOffset;
-    // selectionEndIndex = selection.focusOffset;
+    console.log('start ' + selectionStartIndex + ' length ' + selectionLength);
     if (/m/.test(selectedText) || /meter/.test(selectedText)
         || /cm/.test(selectedText) || /centimeter/.test(selectedText) 
         || /mm/.test(selectedText) || /millimeter/.test(selectedText)){
@@ -127,7 +127,8 @@ function setSelection() {
 }
 
 function replaceMeasurement(newValue, newUnit){
-    let arr = input.value.trim().split('');
+    let arr = output.innerText.split('');
+    console.log(selectionStartIndex + ', ' + selectionLength);
     arr.splice(selectionStartIndex, selectionLength, newValue + ' ' + newUnit);
     output.innerText = arr.join('');
 }
@@ -180,7 +181,7 @@ function suggestYards(){
 function getNext(){
     if (input.value.trim()){
         noText.classList.add("hidden");
-        output.innerText = input.value.trim();
+        output.innerText = 'Instructions: ' + input.value.trim();
         step1.classList.add("hidden");
         step2.classList.remove("hidden");
     } else {
