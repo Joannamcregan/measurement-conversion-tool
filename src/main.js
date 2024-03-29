@@ -17,6 +17,7 @@ const feet = document.querySelector("#feet");
 const yards = document.querySelector("#yards");
 
 let isDark = false;
+let outputClickCount = 0;
 
 var numberPart;
 var unitPart;
@@ -29,78 +30,96 @@ var selectionLength;
 modeSelector.addEventListener('click', toggleDark.bind(this));
 next.addEventListener('click', getNext.bind(this));
 restart.addEventListener('click', startOver.bind(this));
+if(isMobile()){
+    document.addEventListener('selectionchange', setSelection.bind(this));
+  }
+output.addEventListener('click', function(){
+    outputClickCount++;
+})
 output.addEventListener('mouseup', setSelection.bind(this));
-document.addEventListener('selectionchange', setSelection.bind(this));
 inches.addEventListener('click', convert.bind(this, 'inches'));
 feet.addEventListener('click', convert.bind(this, 'feet'));
 yards.addEventListener('click', convert.bind(this, 'yards'));
 
+function isMobile() {
+    const minWidth = 768;
+    return window.innerWidth < minWidth || screen.width < minWidth;
+  }
+
 function convert(convertTo) {
-    var newNumber;
     if (/m/.test(selectedText) || /meter/.test(selectedText)
     || /cm/.test(selectedText) || /centimeter/.test(selectedText) 
     || /mm/.test(selectedText) || /millimeter/.test(selectedText)){
-        if (unitPart === 'm'){
-            if (convertTo === 'inches'){
-                newNumber = numberPart * 39.3701;
-            } else if (convertTo === 'feet'){
-                newNumber = numberPart * 3.28084;
-            } else if (convertTo === 'yards'){
-                newNumber = numberPart * 1.09361;
-            }
-        } else if (unitPart === 'cm'){
-            if (convertTo === 'inches'){
-                newNumber = numberPart * 0.393701;
-            } else if (convertTo === 'feet'){
-                newNumber = numberPart * 0.0328084;
-            } else if (convertTo === 'yards'){
-                newNumber = numberPart * 0.0109361;
-            }
-        } else if (unitPart === 'mm'){
-            if (convertTo === 'inches'){
-                newNumber = numberPart * 0.0393701;
-            } else if (convertTo === 'feet'){
-                newNumber = numberPart * 0.00328084;
-            } else if (convertTo === 'yards'){
-                newNumber = numberPart * 0.00109361;
-            }
-        }
-        if (newNumber === 1){
-            if (convertTo === 'inches'){
-                replaceMeasurement(newNumber, 'inch');
-            } else if (convertTo === 'feet'){
-                replaceMeasurement(newNumber, 'foot');
-            } else if (convertTo === 'yards'){
-                replaceMeasurement(newNumber, 'yard');
+        if (/\d/.test(selectedText)){
+            if (! selectedText.includes('/')){
+                var newNumber;
+                if (unitPart === 'm'){
+                    if (convertTo === 'inches'){
+                        newNumber = numberPart * 39.3701;
+                    } else if (convertTo === 'feet'){
+                        newNumber = numberPart * 3.28084;
+                    } else if (convertTo === 'yards'){
+                        newNumber = numberPart * 1.09361;
+                    }
+                } else if (unitPart === 'cm'){
+                    if (convertTo === 'inches'){
+                        newNumber = numberPart * 0.393701;
+                    } else if (convertTo === 'feet'){
+                        newNumber = numberPart * 0.0328084;
+                    } else if (convertTo === 'yards'){
+                        newNumber = numberPart * 0.0109361;
+                    }
+                } else if (unitPart === 'mm'){
+                    if (convertTo === 'inches'){
+                        newNumber = numberPart * 0.0393701;
+                    } else if (convertTo === 'feet'){
+                        newNumber = numberPart * 0.00328084;
+                    } else if (convertTo === 'yards'){
+                        newNumber = numberPart * 0.00109361;
+                    }
+                }
+                if (newNumber === 1){
+                    if (convertTo === 'inches'){
+                        replaceMeasurement(newNumber, 'inch');
+                    } else if (convertTo === 'feet'){
+                        replaceMeasurement(newNumber, 'foot');
+                    } else if (convertTo === 'yards'){
+                        replaceMeasurement(newNumber, 'yard');
+                    }
+                } else {
+                    replaceMeasurement(newNumber, convertTo);
+                }
+                clearSuggestion();
+            } else {
+                containsFraction.classList.remove('hidden');
             }
         } else {
-            replaceMeasurement(newNumber, convertTo);
+            noNumber.classList.remove('hidden');
         }
-        clearSuggestion();
+    } else {
+        wrongUnit.classList.remove('hidden');
     }
 }
 
 function setSelection() {
-    console.log('called');
     if (window.getSelection) {
         selection = window.getSelection();
     } else if (document.getSelection) {
         selection = document.getSelection().toString().trim();
     }
     selectedText = selection.toString();
+    console.log(selectedText);
     selectionLength = selectedText.length;
     selectionStartIndex = selection.anchorOffset;
-    console.log('start ' + selectionStartIndex + ' length ' + selectionLength);
     if (/m/.test(selectedText) || /meter/.test(selectedText)
-        || /cm/.test(selectedText) || /centimeter/.test(selectedText) 
-        || /mm/.test(selectedText) || /millimeter/.test(selectedText)){
-        wrongUnit.classList.add("hidden");
-        numberPart = selectedText.replace(/[^0123456789.]/gi, '');
+    || /cm/.test(selectedText) || /centimeter/.test(selectedText) 
+    || /mm/.test(selectedText) || /millimeter/.test(selectedText)){
+    wrongUnit.classList.add("hidden");
+    numberPart = selectedText.replace(/[^0123456789.]/gi, '');
+    console.log(numberPart);
         if (/\d/.test(selectedText)){
             noNumber.classList.add('hidden');
-            if (selectedText.includes('/')){
-                containsFraction.classList.remove('hidden');
-            }else {
+            if (! selectedText.includes('/')){
                 containsFraction.classList.add('hidden');
                 if ((/cm/.test(selectedText) || /centimeter/.test(selectedText)) && numberPart >= 30.48){
                     suggestFeet();
@@ -119,11 +138,7 @@ function setSelection() {
                     unitPart = 'm';
                 }
             }
-        } else {
-            noNumber.classList.remove('hidden');
         }
-    } else {
-        wrongUnit.classList.remove("hidden");
     }
 }
 
